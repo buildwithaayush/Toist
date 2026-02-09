@@ -1,31 +1,64 @@
-'use client'
-import { useState } from "react";
+"use client";
+import { useState } from "react"
+
 
 export default function Todoinput(){
-    const [text , setText ] = useState("");
-    const [todos, setTodos] = useState<Todo[]>([])
-    const [completed,setCompleted] = useState(false)
-    type Todo = {
+    interface Todo {
+        id: number,
         text: string,
-       
+        completed: boolean
+    }
+    const[text , setText ] = useState("");
+    const [todo, setTodo] = useState<Todo[]>([]);
+
+   
+
+  
+
+    const Todoload = () => {
+        if(text.trim()==="") return;
+
+        const newTodo: Todo = {
+        id: Date.now(),
+         text,
+        completed: false
+    }
+        setTodo([...todo, newTodo])
+        setText("")
     }
 
-    return(<>
-    <div className="flex gap-2 items-center">
-    
-        <input type="text" placeholder="write your task "  value={text} onChange={(e) => setText(e.target.value)}/>
-        <button onClick={()=>{
-            if (!text.trim()) return;
-            setText("")
-            setTodos([...todos,{text}])
-        }}>Add</button>
+    const deletetodo = (idtodelete: number) => {
+        const newTodos = todo.filter((item) => item.id !== idtodelete);
+        setTodo(newTodos)
+        
+    }
 
-    </div>
-    <div className="flex items-center">
-        <input type="checkbox" checked={completed} 
-        onChange={()=>setCompleted(!completed)}/>
-        {todos.map((todo,index)=> (<div key={index}>{todo.text}</div>))}
-    </div>
+    const toggleComplete = (idtotoggle: number ) =>{
+        setTodo(
+            todo.map((item) => item.id === idtotoggle ? {...item,completed: !item.completed} : item)
+        )
+    }
+   return(<>
+   <div>
+    <input className="px-2 py-1 m-2 rounded-lg outline" type="text"  placeholder="Enter your todo" value={text} onChange={(e)=> setText(e.target.value)}/>
+    <button className="p-1 m-2 rounded-lg outline" onClick={Todoload}>Add</button>
+   
+   </div>
+    <ul className="m-2">
+        {todo.map((item) => (<li key={item.id} className="p-2 flex items-center gap-2">
+            <input type = "checkbox" 
+            checked = {item.completed}
+            onChange={() => {
+                toggleComplete(item.id)
+            }}/>
 
-    </>)
+            <strong className={item.completed ? "line-through text-gray-400" : " "}>{item.text}</strong>
+
+            <button className="p-1 m-2 outline rounded-lg" onClick={()=>{deletetodo(item.id)}}>delete</button>
+
+        
+        </li>))}
+
+    </ul>
+   </>)
 }
